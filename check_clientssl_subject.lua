@@ -11,9 +11,18 @@ when CLIENTSSL_HANDSHAKE{
 
     -- Set cert variable to the client cert
     cert=SSL:cert(t)
-    if cert["subject_name"]:starts_with(subjectname) then
+    if cert["subject_name"]:find(subjectname) then
         log("Client Certificate Matched: %s\n", cert["subject_name"])
     else
-        log("No Matching Client Certificate Was Found: %s\n" , cert["subject_name"])
+        endsession = true
+        log("No Matching Client Certificate Was Found")
+    end
+}
+
+when HTTP_REQUEST{
+    if endsession then
+        HTTP:close()
+    else
+     log("SUCCESS")
     end
 }
